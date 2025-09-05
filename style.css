@@ -1,73 +1,87 @@
-body{
-    height:100%;
-    width: 900px;
-    margin-left: auto;
-    margin-right:auto;
-    margin-top: 20px;
-    margin-bottom:10px;
-    border:1px solid black;
+body {
+  height: 100%;
+  width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border: 1px solid black;
 }
-.postForm, .card mb-2{
-    width: 600px;
-}
-
-.postList{
-    
-}
-container-fluid{
-    background-color: rgb(233, 201, 19);
-    
+.postForm,
+.card mb-2 {
+  width: 600px;
 }
 
-.card{
-    margin-top: 30px;
-    margin-bottom:20px;
-    box-shadow: 1px gray;
-    text-align: center;
-    border-color: rgb(186, 186, 187);
+#postList {
+  width: 450px;
 }
-.card2{
-    margin-top: 30px;
-    width: 300px;
-    > img {
-        width: 450px;
-        height: auto;
-    }
+
+container-fluid {
+  background-color: rgb(233, 201, 19);
+}
+
+.card {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  box-shadow: 1px gray;
+  text-align: center;
+  border-color: rgb(186, 186, 187);
+}
+.card2 {
+  margin-top: 30px;
+  width: 500px;
+  display: flex;
+  > img {
+    width: 500px;
+    height: auto;
+  }
+}
+
+.card-menu {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: 65px;
 }
 
 .col-sm-6 {
-    flex: 0 0 auto;
-    width: 28%;
+  width: 28%;
 }
 
-h4, button{
-    text-align:center;
+h4,
+button {
+  text-align: center;
 }
 
-.find-btn{
-	text-align: center;
-    display :inline-block;
+.aaa {
 }
-	
-ul{
-	list-style-type: none;
-	background-color: #d1cfcf;
-	padding: 20px;
-    border: 1px solid rgb(186, 186, 187);
-	margin:0;
-	width: 130px;
-    margin-left:auto;
-    position: fixed;
-    right:100px;
-    display:block;
-    text-align: left;
-    font-weight: bold;
-    
+
+.find-btn {
+  text-align: center;
+  display: inline-block;
+}
+
+ul {
+  list-style-type: none;
+  background-color: #d1cfcf;
+  padding: 20px;
+  border: 1px solid rgb(186, 186, 187);
+  margin: 0;
+  width: 130px;
+  margin-left: auto;
+  /* position: fixed; */
+  right: 100px;
+  display: block;
+  text-align: left;
+  font-weight: bold;
 }
 
 li a {
-		background-color: #d1cfcf;
-		color:rgb(8, 8, 8);
-        letter-spacing: 2px;
-        line-height: 2;
-		}
+  background-color: #d1cfcf;
+  color: rgb(8, 8, 8);
+  letter-spacing: 2px;
+  line-height: 2;
+}
+
+.card-img-top {
+  display: block;
+}
