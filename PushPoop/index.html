@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>변비 탈출 대작전! (Constipation Escape)</title>
+    <style>
+        :root {
+            --shell-color: #ffeb3b; /* 밝은 노란색 본체 */
+            --shell-border: #fbc02d;
+            --starburst-color: #ff9800; /* 주황색 폭발 패턴 */
+            --screen-bg: #9fb18d;   /* 레트로 LCD 녹색조 배경 */
+            --button-color: #ff5722; /* 진한 주황색 버튼 */
+            --button-border: #e64a19;
+            --text-color: #2d3436;
+            --gauge-bg: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #8d6e63; /* 연한 갈색(황토색 느낌)으로 변경 */
+            /* 배경에 똥(💩) 패턴 적용 및 선명도 조절 */
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><text x='15' y='40' font-size='25' opacity='0.4'>💩</text></svg>");
+            background-repeat: repeat;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            text-shadow: 2px 2px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.75em; /* 글씨를 약간 더 작게 */
+            line-height: 1.5;
+            color: #3e2723;
+            border: 2px solid var(--shell-border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        /* 체인 장식 */
+        .chain-container {
+            position: absolute;
+            top: -40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5; /* 패턴보다 앞으로 */
+        }
+
+        .chain-link {
+            width: 12px;
+            height: 12px;
+            background: #ccc;
+            border: 2px solid #999;
+            border-radius: 50%;
+            margin-bottom: -4px;
+            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 다마고치 본체 */
+        #game-container {
+            position: relative;
+            width: 360px;
+            height: 560px;
+            background-color: var(--shell-color); /* 다시 깔끔한 노란색으로 */
+            border: 6px solid var(--shell-border);
+            border-radius: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            box-shadow: 
+                inset -8px -8px 20px rgba(0,0,0,0.15),
+                inset 8px 8px 20px rgba(255,255,255,0.4),
+                0 30px 60px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* 액정 화면 (베젤 최소화 및 높이 확장) */
+        .visual-area {
+            position: relative;
+            width: 320px;
+            height: 280px; /* 높이 확장 (기존 250px) */
+            background-color: var(--screen-bg);
+            border-radius: 35px;
+            z-index: 2;
+            overflow: hidden;
+            border: 8px solid #333;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 5px 5px;
+            margin-top: 10px;
+        }
+
+        /* 캐릭터 및 오브젝트 위치 조정 (커진 화면에 맞춤) */
+        .character {
+            position: absolute;
+            left: 110px; /* 중앙 정렬 최적화 */
+            top: 40px; /* 위로 약간 이동 */
+            width: 100px;
+            height: 120px;
+            z-index: 5;
+            transition: transform 0.1s;
+        }
+
+        .head {
+            position: absolute;
+            top: 0;
+            left: 30px;
+            width: 40px;
+            height: 45px;
+            background: #ffdbac;
+            border-radius: 50% 50% 45% 45%;
+            border: 2px solid #2d3436;
+        }
+
+        .face-redness {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0);
+            border-radius: inherit;
+            transition: background 0.2s;
+        }
+
+        .eye {
+            position: absolute;
+            top: 15px;
+            right: 8px;
+            width: 5px;
+            height: 5px;
+            background: #2d3436;
+            border-radius: 50%;
+        }
+
+        .body-torso {
+            position: absolute;
+            top: 45px;
+            left: 20px;
+            width: 45px;
+            height: 50px;
+            background: #fab1a0;
+            border-radius: 10px 10px 5px 5px;
+            border: 2px solid #2d3436;
+            transform: rotate(-10deg);
+        }
+
+        .arm {
+            position: absolute;
+            top: 50px;
+            left: 45px;
+            width: 10px;
+            height: 35px;
+            background: #ffdbac;
+            border: 2px solid #2d3436;
+            border-radius: 5px;
+            transform-origin: top center;
+            transform: rotate(-60deg);
+        }
+
+        .leg {
+            position: absolute;
+            top: 85px;
+            left: 25px;
+            width: 50px;
+            height: 15px;
+            background: #74b9ff;
+            border: 2px solid #2d3436;
+            border-radius: 0 10px 10px 0;
+            transform: rotate(10deg);
+        }
+
+        .leg-lower {
+            position: absolute;
+            top: 95px;
+            left: 60px;
+            width: 12px;
+            height: 40px;
+            background: #74b9ff;
+            border: 2px solid #2d3436;
+            border-radius: 5px;
+        }
+
+        .toilet {
+            position: absolute;
+            left: 75px;
+            bottom: 50px; /* 위로 이동 (기존 25px) */
+            width: 100px;
+            height: 80px;
+            z-index: 2;
+        }
+
+        .toilet-tank {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 30px;
+            height: 70px;
+            background: white;
+            border: 2px solid #2d3436;
+            border-radius: 4px;
+        }
+
+        .toilet-bowl {
+            position: absolute;
+            left: 25px;
+            bottom: 0;
+            width: 70px;
+            height: 45px;
+            background: white;
+            border: 2px solid #2d3436;
+            border-radius: 0 0 35px 35px;
+            overflow: hidden; /* 물이 넘치지 않게 */
+        }
+
+        .toilet-water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+            background: rgba(33, 150, 243, 0.4); /* 푸른색 물 */
+            border-top: 1px solid rgba(33, 150, 243, 0.8);
+        }
+
+        /* 물방울 애니메이션 */
+        .splash-drop {
+            position: absolute;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .splash-1 { animation: splash-up-1 0.6s ease-out forwards; }
+        .splash-2 { animation: splash-up-2 0.6s ease-out forwards; }
+        .splash-3 { animation: splash-up-3 0.6s ease-out forwards; }
+
+        @keyframes splash-up-1 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(-20px, -40px) scale(1.2); opacity: 0; }
+        }
+        @keyframes splash-up-2 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(0, -50px) scale(1.2); opacity: 0; }
+        }
+        @keyframes splash-up-3 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(20px, -40px) scale(1.2); opacity: 0; }
+        }
+
+        .toilet-seat {
+            position: absolute;
+            left: 20px;
+            bottom: 40px;
+            width: 80px;
+            height: 12px;
+            background: #f1f2f6;
+            border: 2px solid #2d3436;
+            border-radius: 6px;
+        }
+
+        #poop {
+            position: absolute;
+            left: 115px;
+            top: 135px; /* 캐릭터 위치에 맞춰 조정 */
+            font-size: 32px;
+            opacity: 0;
+            z-index: 3;
+            transition: transform 0.1s;
+        }
+
+        #blood-drop {
+            position: absolute;
+            left: 125px;
+            top: 140px;
+            font-size: 24px;
+            opacity: 0;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        #message {
+            position: absolute;
+            bottom: 10px; /* 맨 아래로 고정 */
+            width: 100%;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #2d3436;
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* 게이지 (버튼 바로 위로 이동) */
+        .stats {
+            width: 300px; /* 화면 너비에 맞춰 확대 */
+            margin-top: 25px;
+            z-index: 5;
+            padding: 12px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .gauge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gauge-label {
+            width: 45px; /* 라벨 너비 고정으로 정렬 유지 */
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #2d3436;
+            text-align: right;
+        }
+
+        .gauge-container {
+            flex: 1; /* 남은 공간 모두 차지 */
+            height: 12px;
+            background: var(--gauge-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid rgba(0,0,0,0.5);
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        #pressure-fill { background: #2ecc71; }
+        #progress-fill { background: #f1c40f; }
+        #blood-fill { background: #e74c3c; }
+
+        /* 하단 단일 버튼 레이아웃 */
+        .controls {
+            position: relative;
+            margin-top: 20px;
+            z-index: 5;
+        }
+
+        #push-btn {
+            width: 80px;
+            height: 80px;
+            background-color: var(--button-color);
+            border: 6px solid var(--button-border);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--button-border), 0 10px 15px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 1px 1px rgba(0,0,0,0.3);
+        }
+
+        #push-btn:active {
+            box-shadow: 0 2px 0 var(--button-border), 0 4px 8px rgba(0,0,0,0.3);
+            transform: translateY(4px);
+        }
+
+        /* 애니메이션 */
+        .shake-char {
+            animation: shakeChar 0.1s infinite;
+        }
+
+        @keyframes shakeChar {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, 0px); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        .screen-flash {
+            animation: flash 0.3s;
+        }
+
+        @keyframes flash {
+            0% { background-color: rgba(255, 0, 0, 0); }
+            50% { background-color: rgba(255, 0, 0, 0.2); }
+            100% { background-color: rgba(255, 0, 0, 0); }
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+        }
+
+        #overlay button {
+            padding: 12px 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background: var(--button-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            margin-top: 25px;
+            box-shadow: 0 5px 0 var(--button-border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chain-container">
+        <div class="chain-link"></div>
+        <div class="chain-link"></div>
+        <div class="chain-link"></div>
+    </div>
+
+    <h1>변비 탈출 대작전!</h1>
+
+    <div class="instructions">
+        <strong>🎮 게임 방법</strong><br>
+        PUSH 버튼이나 <strong>스페이스바</strong>를 꾹 눌러 힘을 주세요.<br>
+        게이지가 <strong>중간(녹색)</strong>에 머물게 유지해야 쾌변할 수 있습니다.<br>
+        너무 세면 피가 나니 주의하세요!
+    </div>
+
+    <div id="game-container">
+        <!-- 액정 화면 (확대됨) -->
+        <div class="visual-area">
+            <div class="toilet">
+                <div class="toilet-tank"></div>
+                <div class="toilet-bowl">
+                    <div class="toilet-water"></div>
+                </div>
+                <div class="toilet-seat"></div>
+            </div>
+
+            <div id="character" class="character">
+                <div class="head">
+                    <div id="face-redness" class="face-redness"></div>
+                    <div class="eye"></div>
+                </div>
+                <div class="body-torso"></div>
+                <div class="arm"></div>
+                <div class="leg"></div>
+                <div class="leg-lower"></div>
+            </div>
+
+            <div id="poop">💩</div>
+            <!-- 물방울들이 생성될 컨테이너 -->
+            <div id="splash-container" style="position: absolute; left: 125px; top: 210px; width: 10px; height: 10px; z-index: 10;"></div>
+            <div id="blood-drop">🩸</div>
+            
+            <div id="message">준비... 꾹!</div>
+        </div>
+
+        <!-- 게이지 (PUSH 버튼 바로 위로 이동) -->
+        <div class="stats">
+            <div class="gauge-row">
+                <span class="gauge-label">Push</span>
+                <div class="gauge-container"><div id="pressure-fill" class="gauge-fill"></div></div>
+            </div>
+            <div class="gauge-row">
+                <span class="gauge-label">💩</span>
+                <div class="gauge-container"><div id="progress-fill" class="gauge-fill"></div></div>
+            </div>
+            <div class="gauge-row">
+                <span class="gauge-label">🩸</span>
+                <div class="gauge-container"><div id="blood-fill" class="gauge-fill"></div></div>
+            </div>
+        </div>
+
+        <!-- 하단 단일 버튼 -->
+        <div class="controls">
+            <button id="push-btn">PUSH!</button>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <h2 id="overlay-title">성공!</h2>
+        <p id="overlay-msg"></p>
+        <button onclick="resetGame()">다시 도전</button>
+    </div>
+
+    <script>
+        const char = document.getElementById('character');
+        const faceRedness = document.getElementById('face-redness');
+        const poop = document.getElementById('poop');
+        const splashContainer = document.getElementById('splash-container');
+        const bloodDrop = document.getElementById('blood-drop');
+        const pressureFill = document.getElementById('pressure-fill');
+        const progressFill = document.getElementById('progress-fill');
+        const bloodFill = document.getElementById('blood-fill');
+        const pushBtn = document.getElementById('push-btn');
+        const message = document.getElementById('message');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayMsg = document.getElementById('overlay-msg');
+
+        let pressure = 0;
+        let progress = 0;
+        let bleeding = 0;
+        let isPushing = false;
+        let gameActive = true;
+        let splashed = false; // 물방울 트리거 방지용
+
+        const PUSH_POWER = 1.8;
+        const RELAX_SPEED = 1.0;
+        const PROGRESS_SPEED = 0.28;
+        const DECAY_SPEED = 0.15;
+        const BLOOD_SPEED = 0.65;
+        const OPTIMAL_MIN = 35;
+        const OPTIMAL_MAX = 80;
+        const DANGER_LEVEL = 85;
+
+        const startPush = () => { if(gameActive) isPushing = true; };
+        const endPush = () => { isPushing = false; };
+
+        pushBtn.addEventListener('mousedown', startPush);
+        pushBtn.addEventListener('mouseup', endPush);
+        pushBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startPush(); });
+        pushBtn.addEventListener('touchend', endPush);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); startPush(); }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') endPush();
+        });
+
+        function createSplash() {
+            if (splashed) return;
+            splashed = true;
+            
+            for (let i = 1; i <= 3; i++) {
+                const drop = document.createElement('div');
+                drop.className = `splash-drop splash-${i}`;
+                drop.innerText = '💧';
+                splashContainer.appendChild(drop);
+                
+                // 애니메이션 종료 후 제거
+                setTimeout(() => drop.remove(), 600);
+            }
+            
+            // 1초 후 다시 튈 수 있게 리셋 (연속 성공 시 대비)
+            setTimeout(() => { splashed = false; }, 1000);
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            if (isPushing) {
+                pressure += PUSH_POWER;
+                char.classList.add('shake-char');
+                faceRedness.style.background = `rgba(255, 0, 0, ${pressure / 100})`;
+            } else {
+                pressure -= RELAX_SPEED;
+                char.classList.remove('shake-char');
+                faceRedness.style.background = `rgba(255, 0, 0, ${pressure / 200})`;
+                if (progress > 0) progress -= DECAY_SPEED;
+            }
+            pressure = Math.max(0, Math.min(100, pressure));
+            pressureFill.style.width = pressure + '%';
+
+            if (pressure > OPTIMAL_MIN && pressure < OPTIMAL_MAX) {
+                progress += PROGRESS_SPEED;
+                message.innerText = "좋아요! ✨";
+                message.style.color = "#1b5e20";
+                
+                // 진행도가 95%를 넘어가면 물방울 튀기 트리거
+                if (progress > 95) {
+                    createSplash();
+                }
+            } else if (pressure >= OPTIMAL_MAX) {
+                message.innerText = "위험! ⚠️";
+                message.style.color = "#b71c1c";
+                if (pressure > DANGER_LEVEL) {
+                    bleeding += BLOOD_SPEED;
+                    bloodDrop.style.opacity = Math.min(1, bleeding / 50);
+                    bloodDrop.style.transform = `translateY(${bleeding * 0.4}px)`;
+                    document.body.classList.add('screen-flash');
+                    setTimeout(() => document.body.classList.remove('screen-flash'), 100);
+                }
+            } else if (pressure > 5) {
+                message.innerText = "더 세게! 💪";
+                message.style.color = "#333";
+            } else {
+                message.innerText = progress > 0 ? "들어간다! 😱" : "준비... 꾹!";
+                message.style.color = "#555";
+            }
+
+            progress = Math.max(0, Math.min(100, progress));
+            progressFill.style.width = progress + '%';
+            poop.style.opacity = Math.min(1, progress / 10);
+            // 똥이 내려가는 거리 조정 (0.55)
+            poop.style.transform = `translateY(${progress * 0.55}px) scale(${0.5 + progress/200})`;
+
+            bleeding = Math.min(100, bleeding);
+            bloodFill.style.width = bleeding + '%';
+
+            if (progress >= 100) winGame();
+            else if (bleeding >= 100) loseGame();
+
+            requestAnimationFrame(update);
+        }
+
+        function winGame() {
+            gameActive = false;
+            overlay.style.display = 'flex';
+            overlayTitle.innerText = "🎉 쾌변 성공! 🎉";
+            overlayMsg.innerText = "괄약근의 지배자가 아주 행복해합니다! 세상이 시원하게 보인대요!";
+            // 성공 시 똥 위치 (0.55 * 100 = 55, 여기에 약간 더 추가)
+            poop.style.transform = `translateY(75px) scale(1.6)`;
+            poop.style.transition = "all 0.5s ease-out";
+            createSplash(); // 승리 시에도 한번 더 튀겨줌
+        }
+
+        function loseGame() {
+            gameActive = false;
+            overlay.style.display = 'flex';
+            overlayTitle.innerText = "🩸 으악! 🩸";
+            overlayMsg.innerText = "괄약근의 지배자가 너무 무리했습니다... 엉덩이가 파괴되어 응급실로 실려갔습니다.";
+            char.style.transform = "rotate(90deg) translateY(20px)";
+        }
+
+        function resetGame() {
+            pressure = 0; progress = 0; bleeding = 0; isPushing = false; gameActive = true; splashed = false;
+            overlay.style.display = 'none';
+            char.style.transform = "none";
+            faceRedness.style.background = "none";
+            poop.style.opacity = 0; poop.style.transform = "none";
+            poop.style.transition = "none";
+            bloodDrop.style.opacity = 0;
+            requestAnimationFrame(update);
+        }
+
+        requestAnimationFrame(update);
+    </script>
+</body>
+</html>
